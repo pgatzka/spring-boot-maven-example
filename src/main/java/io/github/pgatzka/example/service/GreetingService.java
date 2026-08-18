@@ -2,9 +2,9 @@ package io.github.pgatzka.example.service;
 
 import io.github.pgatzka.example.domain.mapper.GreetingMapper;
 import io.github.pgatzka.example.domain.repository.GreetingRepository;
+import io.github.pgatzka.example.rest.request.GreetingCreateRequest;
 import io.github.pgatzka.example.rest.response.response.GreetingResponse;
 import io.github.pgatzka.example.exception.GreetingNotFoundException;
-import io.github.pgatzka.example.rest.request.GreetRequest;
 import io.github.pgatzka.example.rest.request.UpdateGreetingRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class GreetingService {
     private final GreetingMapper greetingMapper;
 
     @Transactional
-    public GreetingResponse greet(GreetRequest request) {
+    public GreetingResponse greet(GreetingCreateRequest request) {
         GreetingResponse response = greetingMapper.toResponse(greetingRepository.save(greetingMapper.toEntity(request)));
         if (response.message() == null) {
             log.info("'{}' greeted '{}' without a message", response.author(), response.subject());

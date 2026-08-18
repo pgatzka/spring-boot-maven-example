@@ -1,9 +1,9 @@
 package io.github.pgatzka.example.rest.controller;
 
+import io.github.pgatzka.example.rest.request.GreetingCreateRequest;
 import io.github.pgatzka.example.rest.request.UpdateGreetingRequest;
 import io.github.pgatzka.example.rest.response.response.GreetingResponse;
 import io.github.pgatzka.example.service.GreetingService;
-import io.github.pgatzka.example.rest.request.GreetRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +28,7 @@ public class GreetingController {
     private final GreetingService service;
 
     @PostMapping(value = "/greet", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GreetingResponse> greet(@RequestBody @Valid GreetRequest request) {
+    public ResponseEntity<GreetingResponse> create(@RequestBody @Valid GreetingCreateRequest request) {
         GreetingResponse greeting = service.greet(request);
         URI location = MvcUriComponentsBuilder.fromMethodCall(on(GreetingController.class).get(greeting.uuid())).build(1);
         return ResponseEntity.created(location).body(greeting);
