@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: example
+  main:
+    banner-mode: off
+logging:
+  level:
+    root: info
+    io.github.pgatzka.example: info
+    org.springframework.boot: warn
