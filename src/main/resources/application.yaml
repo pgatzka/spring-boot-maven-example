@@ -3,6 +3,9 @@ spring:
     name: example
   main:
     banner-mode: off
+  jpa:
+    hibernate:
+      ddl-auto: validate
 logging:
   level:
     root: info
