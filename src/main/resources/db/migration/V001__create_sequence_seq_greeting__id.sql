@@ -1,0 +1,1 @@
+create sequence seq_greeting__id start with 1 increment 50;
