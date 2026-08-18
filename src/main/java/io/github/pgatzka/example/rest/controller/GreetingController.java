@@ -1,12 +1,11 @@
 package io.github.pgatzka.example.rest.controller;
 
+import io.github.pgatzka.example.rest.request.GreetingCreateRequest;
+import io.github.pgatzka.example.rest.request.UpdateGreetingRequest;
 import io.github.pgatzka.example.rest.response.response.GreetingResponse;
 import io.github.pgatzka.example.service.GreetingService;
-import io.github.pgatzka.example.rest.request.GreetRequest;
-import io.github.pgatzka.example.rest.request.UpdateGreetRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -29,7 +28,7 @@ public class GreetingController {
     private final GreetingService service;
 
     @PostMapping(value = "/greet", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GreetingResponse> greet(@RequestBody @Valid GreetRequest request) {
+    public ResponseEntity<GreetingResponse> create(@RequestBody @Valid GreetingCreateRequest request) {
         GreetingResponse greeting = service.greet(request);
         URI location = MvcUriComponentsBuilder.fromMethodCall(on(GreetingController.class).get(greeting.uuid())).build(1);
         return ResponseEntity.created(location).body(greeting);
@@ -46,7 +45,7 @@ public class GreetingController {
     }
 
     @PutMapping(value = "/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GreetingResponse> update(@PathVariable("uuid") UUID uuid, @RequestBody @Valid UpdateGreetRequest request) {
+    public ResponseEntity<GreetingResponse> update(@PathVariable("uuid") UUID uuid, @RequestBody @Valid UpdateGreetingRequest request) {
         return ResponseEntity.ok(service.update(uuid, request));
     }
 
