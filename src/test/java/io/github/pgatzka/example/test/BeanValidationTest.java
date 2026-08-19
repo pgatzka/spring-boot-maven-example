@@ -38,7 +38,7 @@ public abstract class BeanValidationTest<B> {
 
         assertThat(validationResult).isNotEmpty();
         assertThat(validationResult).anyMatch(violation -> violation.getPropertyPath().toString().equals(field)
-                && violation.getConstraintDescriptor().getAnnotation().annotationType() == constraint);
+                        && violation.getConstraintDescriptor().getAnnotation().annotationType() == constraint);
     }
 
     @AfterAll

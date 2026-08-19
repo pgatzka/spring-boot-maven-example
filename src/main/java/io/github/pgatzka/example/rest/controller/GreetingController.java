@@ -32,7 +32,7 @@ public class GreetingController {
     public ResponseEntity<GreetingResponse> create(@RequestBody @Valid GreetingCreateRequest request) {
         GreetingResponse greeting = service.greet(request);
         URI location = MvcUriComponentsBuilder.fromMethodCall(on(GreetingController.class).get(greeting.uuid()))
-                .build(1);
+                        .build(1);
         return ResponseEntity.created(location).body(greeting);
     }
 
@@ -43,13 +43,13 @@ public class GreetingController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<GreetingResponse>> list(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                    @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(service.list(pageable));
     }
 
     @PutMapping(value = "/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GreetingResponse> update(@PathVariable("uuid") UUID uuid,
-            @RequestBody @Valid UpdateGreetingRequest request) {
+                    @RequestBody @Valid UpdateGreetingRequest request) {
         return ResponseEntity.ok(service.update(uuid, request));
     }
 

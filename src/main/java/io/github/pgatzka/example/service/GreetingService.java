@@ -29,7 +29,7 @@ public class GreetingService {
     @Transactional
     public GreetingResponse greet(GreetingCreateRequest request) {
         GreetingResponse response = greetingMapper
-                .toResponse(greetingRepository.save(greetingMapper.toEntity(request)));
+                        .toResponse(greetingRepository.save(greetingMapper.toEntity(request)));
         if (response.message() == null) {
             log.info("'{}' greeted '{}' without a message", response.author(), response.subject());
         } else {
@@ -40,21 +40,21 @@ public class GreetingService {
 
     public GreetingResponse get(UUID uuid) {
         GreetingResponse response = greetingRepository.findByUuid(uuid).map(greetingMapper::toResponse)
-                .orElseThrow(() -> new GreetingNotFoundException(uuid));
+                        .orElseThrow(() -> new GreetingNotFoundException(uuid));
         log.info("Fetched greeting: {}", response);
         return response;
     }
 
     public PagedModel<GreetingResponse> list(Pageable pageable) {
         log.info("Fetching greetings with pageSize: {}, pageNumber: {}", pageable.getPageSize(),
-                pageable.getPageNumber());
+                        pageable.getPageNumber());
         return new PagedModel<>(greetingRepository.findAll(pageable).map(greetingMapper::toResponse));
     }
 
     @Transactional
     public GreetingResponse update(UUID uuid, UpdateGreetingRequest request) {
-        GreetingResponse response = greetingMapper
-                .toResponse(greetingRepository.save(greetingMapper.updateEntity(request,
+        GreetingResponse response = greetingMapper.toResponse(greetingRepository.save(greetingMapper.updateEntity(
+                        request,
                         greetingRepository.findByUuid(uuid).orElseThrow(() -> new GreetingNotFoundException(uuid)))));
         log.info("Updated greeting: '{}'", uuid);
         return response;

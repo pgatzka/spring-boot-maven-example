@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 
 public record GreetingCreateRequest(@NotBlank @Length(max = 30) String author, @Length(max = 200) String message,
-        @NotBlank @Length(max = 30) String subject) {
+                @NotBlank @Length(max = 30) String subject) {
 }

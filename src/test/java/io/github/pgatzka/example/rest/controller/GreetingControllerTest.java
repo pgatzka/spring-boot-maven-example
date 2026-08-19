@@ -71,21 +71,19 @@ class GreetingControllerTest {
         void returnsCreatedWithLocationAndSerializedGreeting() throws Exception {
             when(service.greet(any())).thenReturn(RESPONSE);
 
-            mockMvc.perform(
-                    post(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON).content(json(CREATE_REQUEST)))
-                    .andExpect(status().isCreated())
-                    .andExpect(header().string("Location", "http://localhost" + BASE_PATH + "/" + UUID_VALUE))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(content().string(json(RESPONSE)));
+            mockMvc.perform(post(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON)
+                            .content(json(CREATE_REQUEST))).andExpect(status().isCreated())
+                            .andExpect(header().string("Location", "http://localhost" + BASE_PATH + "/" + UUID_VALUE))
+                            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                            .andExpect(content().string(json(RESPONSE)));
         }
 
         @Test
         void passesDeserializedRequestBodyToService() throws Exception {
             when(service.greet(any())).thenReturn(RESPONSE);
 
-            mockMvc.perform(
-                    post(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON).content(json(CREATE_REQUEST)))
-                    .andExpect(status().isCreated());
+            mockMvc.perform(post(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON)
+                            .content(json(CREATE_REQUEST))).andExpect(status().isCreated());
 
             ArgumentCaptor<GreetingCreateRequest> captor = ArgumentCaptor.forClass(GreetingCreateRequest.class);
             verify(service).greet(captor.capture());
@@ -103,8 +101,8 @@ class GreetingControllerTest {
             when(service.get(UUID_VALUE)).thenReturn(RESPONSE);
 
             mockMvc.perform(get(BASE_PATH + "/{uuid}", UUID_VALUE)).andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(content().string(json(RESPONSE)));
+                            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                            .andExpect(content().string(json(RESPONSE)));
         }
 
         @Test
@@ -125,12 +123,12 @@ class GreetingControllerTest {
         @Test
         void returnsOkWithSerializedPage() throws Exception {
             PagedModel<GreetingResponse> page = new PagedModel<>(
-                    new PageImpl<>(List.of(RESPONSE), PageRequest.of(0, 20), 1));
+                            new PageImpl<>(List.of(RESPONSE), PageRequest.of(0, 20), 1));
             when(service.list(any())).thenReturn(page);
 
             mockMvc.perform(get(BASE_PATH)).andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(content().string(json(page)));
+                            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                            .andExpect(content().string(json(page)));
         }
 
         @Test
@@ -157,9 +155,9 @@ class GreetingControllerTest {
             when(service.update(eq(UUID_VALUE), any())).thenReturn(RESPONSE);
 
             mockMvc.perform(put(BASE_PATH + "/{uuid}", UUID_VALUE).contentType(MediaType.APPLICATION_JSON)
-                    .content(json(UPDATE_REQUEST))).andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(content().string(json(RESPONSE)));
+                            .content(json(UPDATE_REQUEST))).andExpect(status().isOk())
+                            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                            .andExpect(content().string(json(RESPONSE)));
         }
 
         @Test
@@ -167,7 +165,7 @@ class GreetingControllerTest {
             when(service.update(eq(UUID_VALUE), any())).thenReturn(RESPONSE);
 
             mockMvc.perform(put(BASE_PATH + "/{uuid}", UUID_VALUE).contentType(MediaType.APPLICATION_JSON)
-                    .content(json(UPDATE_REQUEST))).andExpect(status().isOk());
+                            .content(json(UPDATE_REQUEST))).andExpect(status().isOk());
 
             ArgumentCaptor<UpdateGreetingRequest> captor = ArgumentCaptor.forClass(UpdateGreetingRequest.class);
             verify(service).update(eq(UUID_VALUE), captor.capture());
@@ -183,7 +181,7 @@ class GreetingControllerTest {
         @Test
         void returnsNoContentWithEmptyBodyAndPassesPathVariableToService() throws Exception {
             mockMvc.perform(delete(BASE_PATH + "/{uuid}", UUID_VALUE)).andExpect(status().isNoContent())
-                    .andExpect(content().string(""));
+                            .andExpect(content().string(""));
 
             verify(service).delete(UUID_VALUE);
         }

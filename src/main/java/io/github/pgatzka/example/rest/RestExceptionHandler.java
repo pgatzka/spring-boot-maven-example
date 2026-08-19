@@ -25,10 +25,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
-            @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+                    @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .filter(fieldError -> fieldError.getDefaultMessage() != null)
-                .collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
+                        .filter(fieldError -> fieldError.getDefaultMessage() != null).collect(Collectors.toMap(
+                                        FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
 
         ProblemDetail problem = ProblemDetail.forStatus(status);
         problem.setProperty("errors", errors);
@@ -38,7 +38,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected @Nullable ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body,
-            @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
+                    @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
 
         if (response != null && response.getBody() instanceof ProblemDetail problem) {

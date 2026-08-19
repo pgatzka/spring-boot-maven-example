@@ -154,7 +154,7 @@ class GreetingServiceTest {
             when(greetingRepository.findByUuid(UUID_VALUE)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.update(UUID_VALUE, UPDATE_REQUEST))
-                    .isInstanceOf(GreetingNotFoundException.class);
+                            .isInstanceOf(GreetingNotFoundException.class);
 
             verify(greetingRepository, never()).save(any());
             verifyNoInteractions(greetingMapper);
