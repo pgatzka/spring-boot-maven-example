@@ -16,6 +16,6 @@ jobs:
     timeout-minutes: 5
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: pgatzka/pr-decorator@f54b4f781360ed1dcb1918abbfb6cd1abf3ad5ab # v1.0.0
+      - uses: pgatzka/pr-decorator@39467a84877139880f6bed7f70f6cb9ece8d3806 # v1.0.1
         with:
           timezone: Europe/Zurich
