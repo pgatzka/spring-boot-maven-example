@@ -271,6 +271,7 @@
                         </eclipse>
                         <trimTrailingWhitespace/>
                         <endWithNewline/>
+                        <removeUnusedImports />
                     </java>
                 </configuration>
             </plugin>
