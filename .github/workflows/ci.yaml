@@ -86,7 +86,9 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
+      security-events: write
       contents: read
+      actions: read
     needs:
       - test
     env:
@@ -131,6 +133,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./mvnw -B sonar:sonar
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@3dc1ecc9bcb9e94e9b2c709687979e1298497054 # v0.6.2
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -175,10 +179,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      VERSION_TAG: ghcr.io/${{ github.repository_owner }}:${{ needs.build.outputs.version }}
-      TYPE_TAG: ghcr.io/${{ github.repository_owner }}:${{ startsWith(github.ref, 'refs/tags/') && 'latest' || 'snapshot' }}
-      SHA_TAG: ghcr.io/${{ github.repository_owner }}:${{ github.event.pull_request.head.sha || github.sha }}
     needs:
       - build
     steps:
@@ -193,12 +193,14 @@ jobs:
           path: target
       - name: Setup docker
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
-      - name: Report tags
-        run: |
-          echo "Tagging image with"
-          echo "- $VERSION_TAG"
-          echo "- $TYPE_TAG"
-          echo "- $SHA_TAG"
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha
+            type=raw,value=snapshot
       - name: Build docker image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
@@ -207,13 +209,11 @@ jobs:
           build-args: |
             REVISION=${{ github.event.pull_request.head.sha || github.sha }}
             VERSION=${{ needs.build.outputs.version }}
-          tags: |
-            ${{ env.VERSION_TAG }}
-            ${{ env.TYPE_TAG }}
-            ${{ env.SHA_TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/image.tar
+          labels: ${{ steps.meta.outputs.labels }}
       - name: Upload Image
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
