@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.rest.exception;
 
 import org.jspecify.annotations.NonNull;
@@ -11,4 +12,5 @@ public abstract class NotFoundException extends ErrorResponseException {
         super(HttpStatus.NOT_FOUND);
         setDetail(reason);
     }
+
 }

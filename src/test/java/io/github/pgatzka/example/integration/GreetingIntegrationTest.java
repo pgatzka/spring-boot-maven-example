@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.integration;
 
 import io.github.pgatzka.example.TestcontainersConfiguration;
@@ -34,71 +35,43 @@ class GreetingIntegrationTest {
     private RestTestClient client;
 
     private GreetingResponse createGreeting() {
-        return client.post().uri(BASE_PATH + "/greet")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new GreetingCreateRequest(AUTHOR, MESSAGE, SUBJECT))
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(GreetingResponse.class)
-                .returnResult()
-                .getResponseBody();
+        return client.post().uri(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON)
+                .body(new GreetingCreateRequest(AUTHOR, MESSAGE, SUBJECT)).exchange().expectStatus().isCreated()
+                .expectBody(GreetingResponse.class).returnResult().getResponseBody();
     }
 
     @Test
     void createdGreetingIsRetrievableAtItsLocation() {
-        URI location = client.post().uri(BASE_PATH + "/greet")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new GreetingCreateRequest(AUTHOR, MESSAGE, SUBJECT))
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(GreetingResponse.class)
-                .returnResult()
-                .getResponseHeaders()
-                .getLocation();
+        URI location = client.post().uri(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON)
+                .body(new GreetingCreateRequest(AUTHOR, MESSAGE, SUBJECT)).exchange().expectStatus().isCreated()
+                .expectBody(GreetingResponse.class).returnResult().getResponseHeaders().getLocation();
 
         assertThat(location).isNotNull();
 
-        client.get().uri(location)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
-                .expectBody()
-                .jsonPath("$.author").isEqualTo(AUTHOR)
-                .jsonPath("$.message").isEqualTo(MESSAGE)
-                .jsonPath("$.subject").isEqualTo(SUBJECT);
+        client.get().uri(location).exchange().expectStatus().isOk().expectHeader()
+                .contentTypeCompatibleWith(MediaType.APPLICATION_JSON).expectBody().jsonPath("$.author")
+                .isEqualTo(AUTHOR).jsonPath("$.message").isEqualTo(MESSAGE).jsonPath("$.subject").isEqualTo(SUBJECT);
     }
 
     @Test
     void createdGreetingIsListedFirstAsTheMostRecentOne() {
         GreetingResponse created = createGreeting();
 
-        client.get().uri(BASE_PATH + "?size=1")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.page.size").isEqualTo(1)
-                .jsonPath("$.content[0].uuid").isEqualTo(created.uuid().toString());
+        client.get().uri(BASE_PATH + "?size=1").exchange().expectStatus().isOk().expectBody().jsonPath("$.page.size")
+                .isEqualTo(1).jsonPath("$.content[0].uuid").isEqualTo(created.uuid().toString());
     }
 
     @Test
     void updatedGreetingIsPersisted() {
         GreetingResponse created = createGreeting();
 
-        client.put().uri(BASE_PATH + "/{uuid}", created.uuid())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new UpdateGreetingRequest("Donald", "Wishes granted.", "Raymond"))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.uuid").isEqualTo(created.uuid().toString())
-                .jsonPath("$.author").isEqualTo("Donald");
+        client.put().uri(BASE_PATH + "/{uuid}", created.uuid()).contentType(MediaType.APPLICATION_JSON)
+                .body(new UpdateGreetingRequest("Donald", "Wishes granted.", "Raymond")).exchange().expectStatus()
+                .isOk().expectBody().jsonPath("$.uuid").isEqualTo(created.uuid().toString()).jsonPath("$.author")
+                .isEqualTo("Donald");
 
-        client.get().uri(BASE_PATH + "/{uuid}", created.uuid())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.author").isEqualTo("Donald")
-                .jsonPath("$.message").isEqualTo("Wishes granted.")
+        client.get().uri(BASE_PATH + "/{uuid}", created.uuid()).exchange().expectStatus().isOk().expectBody()
+                .jsonPath("$.author").isEqualTo("Donald").jsonPath("$.message").isEqualTo("Wishes granted.")
                 .jsonPath("$.subject").isEqualTo("Raymond");
     }
 
@@ -106,38 +79,26 @@ class GreetingIntegrationTest {
     void deletedGreetingIsNoLongerRetrievable() {
         GreetingResponse created = createGreeting();
 
-        client.delete().uri(BASE_PATH + "/{uuid}", created.uuid())
-                .exchange()
-                .expectStatus().isNoContent()
-                .expectBody().isEmpty();
+        client.delete().uri(BASE_PATH + "/{uuid}", created.uuid()).exchange().expectStatus().isNoContent().expectBody()
+                .isEmpty();
 
-        client.get().uri(BASE_PATH + "/{uuid}", created.uuid())
-                .exchange()
-                .expectStatus().isNotFound();
+        client.get().uri(BASE_PATH + "/{uuid}", created.uuid()).exchange().expectStatus().isNotFound();
     }
 
     @Test
     void unknownGreetingIsReportedAsNotFound() {
         UUID unknown = UUID.randomUUID();
 
-        client.get().uri(BASE_PATH + "/{uuid}", unknown)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.status").isEqualTo(404)
-                .jsonPath("$.detail").isEqualTo("Greeting '" + unknown + "' not found");
+        client.get().uri(BASE_PATH + "/{uuid}", unknown).exchange().expectStatus().isNotFound().expectBody()
+                .jsonPath("$.status").isEqualTo(404).jsonPath("$.detail")
+                .isEqualTo("Greeting '" + unknown + "' not found");
     }
 
     @Test
     void invalidGreetingIsRejectedAndNotPersisted() {
-        client.post().uri(BASE_PATH + "/greet")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new GreetingCreateRequest(" ", MESSAGE, "A".repeat(50)))
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.status").isEqualTo(400)
-                .jsonPath("$.errors.author").exists()
+        client.post().uri(BASE_PATH + "/greet").contentType(MediaType.APPLICATION_JSON)
+                .body(new GreetingCreateRequest(" ", MESSAGE, "A".repeat(50))).exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.status").isEqualTo(400).jsonPath("$.errors.author").exists()
                 .jsonPath("$.errors.subject").exists();
     }
 

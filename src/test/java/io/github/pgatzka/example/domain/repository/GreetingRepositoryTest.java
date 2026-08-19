@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.domain.repository;
 
 import io.github.pgatzka.example.TestcontainersConfiguration;
@@ -16,7 +17,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({TestcontainersConfiguration.class, JpaConfiguration.class})
+@Import({ TestcontainersConfiguration.class, JpaConfiguration.class })
 class GreetingRepositoryTest {
 
     private static final String AUTHOR = "Raymond";

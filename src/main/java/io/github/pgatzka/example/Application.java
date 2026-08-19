@@ -1,5 +1,5 @@
-package io.github.pgatzka.example;
 
+package io.github.pgatzka.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.configuration;
 
 import org.springframework.context.annotation.Configuration;

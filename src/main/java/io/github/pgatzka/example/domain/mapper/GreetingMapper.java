@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.domain.mapper;
 
 import io.github.pgatzka.example.domain.entity.Greeting;
@@ -13,10 +14,7 @@ public interface GreetingMapper {
 
     Greeting toEntity(GreetingCreateRequest request);
 
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "author", source = "author")
-    @Mapping(target = "message", source = "message")
-    @Mapping(target = "subject", source = "subject")
+    @BeanMapping(ignoreByDefault = true) @Mapping(target = "author", source = "author") @Mapping(target = "message", source = "message") @Mapping(target = "subject", source = "subject")
     Greeting updateEntity(UpdateGreetingRequest updateGreetingRequest, @MappingTarget Greeting greeting);
 
 }
