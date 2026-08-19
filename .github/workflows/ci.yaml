@@ -41,7 +41,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Check formatting
         run: |
-          ./mvwn -B spotless:check
+          ./mvnw -B spotless:check
   test:
     name: Test
     runs-on: ubuntu-latest
