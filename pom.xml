@@ -269,6 +269,7 @@
                         <eclipse>
                             <file>eclipse-formatter.xml</file>
                         </eclipse>
+                        <endWithNewline/>
                     </java>
                 </configuration>
             </plugin>
