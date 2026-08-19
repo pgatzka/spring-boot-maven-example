@@ -236,16 +236,18 @@ jobs:
           path: /tmp
       - name: Scan image
         run: |
-          docker run --rm -v /tmp:/tmp:ro \
+          docker run --rm \
+            -v /tmp/image.tar:/scan/image.tar:ro \
+            -v "$RUNNER_TEMP/trivy-cache:/root/.cache/trivy" \
             aquasec/trivy:0.73.0@sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c \
-            image --input /tmp/image.tar \
+            image --input /scan/image.tar \
             --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 \
             --format table --no-progress | tee /tmp/trivy.txt
           {
             echo '## Image scan (HIGH/CRITICAL, fixed only)'
             echo
             echo '```'
-            cat /tmp/trivy.txt
+            head -c 900000 /tmp/trivy.txt
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
   gate:
@@ -275,7 +277,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # if github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     needs:
       - check
       - test
