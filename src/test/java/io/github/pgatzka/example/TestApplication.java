@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example;
 
 import org.springframework.boot.SpringApplication;

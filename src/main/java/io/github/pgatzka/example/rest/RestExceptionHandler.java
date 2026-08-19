@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.rest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,11 @@ import java.util.stream.Collectors;
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream().filter(fieldError -> fieldError.getDefaultMessage() != null).collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
+    protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
+                    @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                        .filter(fieldError -> fieldError.getDefaultMessage() != null).collect(Collectors.toMap(
+                                        FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
 
         ProblemDetail problem = ProblemDetail.forStatus(status);
         problem.setProperty("errors", errors);
@@ -33,7 +37,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected @Nullable ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body, @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
+    protected @Nullable ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body,
+                    @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
 
         if (response != null && response.getBody() instanceof ProblemDetail problem) {
@@ -54,4 +59,5 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             log.debug("{} on {}: {}", status.value(), path, ex.getMessage());
         }
     }
+
 }

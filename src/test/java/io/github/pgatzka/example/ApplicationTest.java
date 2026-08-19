@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example;
 
 import org.junit.jupiter.api.Test;
@@ -14,4 +15,5 @@ public class ApplicationTest {
     void contextLoads() {
         assertTrue(true);
     }
+
 }

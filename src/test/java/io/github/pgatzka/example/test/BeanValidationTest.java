@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.test;
 
 import jakarta.validation.ConstraintViolation;
@@ -26,19 +27,18 @@ public abstract class BeanValidationTest<B> {
         validator = factory.getValidator();
     }
 
-    @MethodSource("validCases")
-    @ParameterizedTest(name = "Bean {0} is valid")
+    @MethodSource("validCases") @ParameterizedTest(name = "Bean {0} is valid")
     void validArgumentsTests(B bean) {
         assertThat(validator.validate(bean)).isEmpty();
     }
 
-    @MethodSource("invalidCases")
-    @ParameterizedTest(name = "Bean {0} triggers {1} on field {2}")
+    @MethodSource("invalidCases") @ParameterizedTest(name = "Bean {0} triggers {1} on field {2}")
     void invalidArgumentTests(B bean, Class<? extends Annotation> constraint, String field) {
         Set<ConstraintViolation<B>> validationResult = validator.validate(bean);
 
         assertThat(validationResult).isNotEmpty();
-        assertThat(validationResult).anyMatch(violation -> violation.getPropertyPath().toString().equals(field) && violation.getConstraintDescriptor().getAnnotation().annotationType() == constraint);
+        assertThat(validationResult).anyMatch(violation -> violation.getPropertyPath().toString().equals(field)
+                        && violation.getConstraintDescriptor().getAnnotation().annotationType() == constraint);
     }
 
     @AfterAll

@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.domain.repository;
 
 import io.github.pgatzka.example.domain.entity.Greeting;

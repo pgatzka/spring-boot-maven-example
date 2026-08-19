@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example;
 
 import org.springframework.boot.test.context.TestConfiguration;
@@ -8,8 +9,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 
-    @Bean
-    @ServiceConnection
+    @Bean @ServiceConnection
     PostgreSQLContainer postgresContainer() {
         return new PostgreSQLContainer("postgres:18-alpine");
     }

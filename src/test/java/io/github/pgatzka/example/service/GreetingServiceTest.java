@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.service;
 
 import io.github.pgatzka.example.domain.entity.Greeting;
@@ -152,7 +153,8 @@ class GreetingServiceTest {
         void throwsGreetingNotFoundAndSavesNothingWhenGreetingIsAbsent() {
             when(greetingRepository.findByUuid(UUID_VALUE)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.update(UUID_VALUE, UPDATE_REQUEST)).isInstanceOf(GreetingNotFoundException.class);
+            assertThatThrownBy(() -> service.update(UUID_VALUE, UPDATE_REQUEST))
+                            .isInstanceOf(GreetingNotFoundException.class);
 
             verify(greetingRepository, never()).save(any());
             verifyNoInteractions(greetingMapper);
