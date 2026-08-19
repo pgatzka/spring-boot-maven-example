@@ -39,6 +39,9 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Check formatting
+        run: |
+          ./mvwn -B spotless:check
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -61,6 +64,24 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Check formatting
+        run: |
+          ./mvwn -B verify
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-report
+          path: target/site/jacoco
+      - name: Report coverage
+        run: |
+          # jacoco.csv columns: GROUP,PACKAGE,CLASS,...,LINE_MISSED,LINE_COVERED,...
+          awk -F, 'NR > 1 { missed += $8; covered += $9 }
+            END {
+              total = missed + covered
+              pct = (total > 0) ? 100 * covered / total : 0
+              printf "## Coverage\n\n**%.1f%%** of lines (%d/%d)\n", pct, covered, total
+            }' target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
@@ -68,6 +89,8 @@ jobs:
       contents: read
     needs:
       - test
+    env:
+      HAS_SONAR_TOKEN: ${{ secrets.SONAR_TOKEN != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -85,6 +108,29 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Compile
+        if: env.HAS_SONAR_TOKEN == 'true'
+        run: |
+          ./mvnw -DskipTests package
+      - name: Download coverage report
+        if: env.HAS_SONAR_TOKEN == 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: coverage-report
+          path: target/site/jacoco
+      - name: Cache SonarQube packages
+        if: env.HAS_SONAR_TOKEN == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Run sonar analysis
+        if: env.HAS_SONAR_TOKEN == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw -B sonar:sonar
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -107,16 +153,70 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Build jar
+        run: |
+          ./mvnw -B package -Dmaven.test.skip=true
+      - name: Upload jar
+        run: echo "Hello world"
+      - name: Upload JAR
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jar
+          path: target/*.jar
+      - name: Set version
+        id: set-version
+        run: |
+          VERSION=$(./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout | tail -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
   package:
     name: Package
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      VERSION_TAG: ghcr.io/${{ github.repository_owner }}:${{ needs.build.outputs.version }}
+      TYPE_TAG: ghcr.io/${{ github.repository_owner }}:${{ startsWith(github.ref, 'refs/tags/') && 'latest' || 'snapshot' }}
+      SHA_TAG: ghcr.io/${{ github.repository_owner }}:${{ github.event.pull_request.head.sha || github.sha }}
     needs:
       - build
     steps:
-      - name: Temporary step
-        run: echo "Hello World"
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download JAR
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: jar
+          path: target
+      - name: Setup docker
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      - name: Report tags
+        run: |
+          echo "Tagging image with"
+          echo "- $VERSION_TAG"
+          echo "- $TYPE_TAG"
+          echo "- $SHA_TAG"
+      - name: Build docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          push: false
+          build-args: |
+            REVISION=${{ github.event.pull_request.head.sha || github.sha }}
+            VERSION=${{ needs.build.outputs.version }}
+          tags: |
+            ${{ env.VERSION_TAG }}
+            ${{ env.TYPE_TAG }}
+            ${{ env.SHA_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/image.tar
+      - name: Upload Image
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: image
+          path: /tmp/image.tar
   scan:
     name: Scan
     runs-on: ubuntu-latest
@@ -126,8 +226,25 @@ jobs:
       - build
       - package
     steps:
-      - name: Temporary step
-        run: echo "Hello World"
+      - name: Download image
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: image
+          path: /tmp
+      - name: Scan image
+        run: |
+          docker run --rm -v /tmp:/tmp:ro \
+            aquasec/trivy:0.73.0@sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c \
+            image --input /tmp/image.tar \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 \
+            --format table --no-progress | tee /tmp/trivy.txt
+          {
+            echo '## Image scan (HIGH/CRITICAL, fixed only)'
+            echo
+            echo '```'
+            cat /tmp/trivy.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
   gate:
     name: Gate
     runs-on: ubuntu-latest
@@ -141,13 +258,21 @@ jobs:
       - package
       - scan
     steps:
-      - name: Temporary step
-        run: echo "Hello World"
+      - name: Check PR gate
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          echo "One or more jobs did not succeed:"
+          echo "$NEEDS_JSON"
+          exit 1
   publish:
     name: Publish
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     needs:
       - check
       - test
@@ -156,13 +281,27 @@ jobs:
       - package
       - scan
     steps:
-      - name: Temporary step
-        run: echo "Hello World"
+      - name: Download image
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: image
+          path: /tmp
+      - name: Login
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Load image
+        run: docker load -i /tmp/image.tar
+      - name: Push image
+        run: docker push --all-tags "${{ env.IMAGE }}"
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     needs:
       - check
       - test
