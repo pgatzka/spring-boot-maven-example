@@ -14,3 +14,12 @@ logging:
     root: info
     io.github.pgatzka.example: info
     org.springframework.boot: warn
+  include-application-name: false
+  pattern:
+    correlation: "[${spring.application.name:},%X{requestId:-}] "
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5p){} %clr([%15.15t]){faint} %clr(%-8.-8X{requestId:-········}){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m %clr(%kvp){faint}%n%wEx"
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
