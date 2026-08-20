@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourcePerFileMappings">
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V001__create_sequence_seq_greeting__id.sql" value="4845b181-9e5c-4e46-9948-a0b59e1ee9d1" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V002__create_table_greeting.sql" value="4845b181-9e5c-4e46-9948-a0b59e1ee9d1" />
-  </component>
-</project>

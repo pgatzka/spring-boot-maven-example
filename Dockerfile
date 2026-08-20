@@ -1,7 +1,7 @@
 FROM eclipse-temurin:25-jre-alpine AS assembler
 WORKDIR /assembler
 
-ARG JAR_FILE=target/*.jar
+ARG JAR_FILE=target/application.jar
 
 COPY ${JAR_FILE} application.jar
 
