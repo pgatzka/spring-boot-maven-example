@@ -139,7 +139,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     outputs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
