@@ -3,14 +3,11 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-<<<<<<< Updated upstream
   docker:
     compose:
       enabled: false
-=======
 springdoc:
   swagger-ui:
     enabled: false
   api-docs:
     enabled: false
->>>>>>> Stashed changes
