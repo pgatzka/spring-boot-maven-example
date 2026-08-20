@@ -23,8 +23,8 @@ public class RequestIdFilter extends OncePerRequestFilter {
 
     private static final String MDC_KEY = "requestId";
 
-    private static final Pattern REQUEST_ID_PATTERN = Pattern
-                    .compile("^[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile(
+                    "^[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}$", Pattern.CASE_INSENSITIVE);
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
