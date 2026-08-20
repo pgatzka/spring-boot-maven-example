@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.service;
 
 import io.github.pgatzka.example.domain.mapper.GreetingMapper;
@@ -24,9 +25,10 @@ public class GreetingService {
 
     private final GreetingMapper greetingMapper;
 
-    @Transactional public GreetingResponse greet(GreetingCreateRequest request) {
-        GreetingResponse response = greetingMapper.toResponse(
-                        greetingRepository.save(greetingMapper.toEntity(request)));
+    @Transactional
+    public GreetingResponse greet(GreetingCreateRequest request) {
+        GreetingResponse response = greetingMapper
+                        .toResponse(greetingRepository.save(greetingMapper.toEntity(request)));
 
         log.atInfo().setMessage("Greeting created").addKeyValue("greeting.author", response.author())
                         .addKeyValue("greeting.subject", response.subject())
@@ -47,15 +49,17 @@ public class GreetingService {
         return new PagedModel<>(greetingRepository.findAll(pageable).map(greetingMapper::toResponse));
     }
 
-    @Transactional public GreetingResponse update(UUID uuid, UpdateGreetingRequest request) {
-        GreetingResponse response = greetingMapper.toResponse(greetingRepository.save(
-                        greetingMapper.updateEntity(request, greetingRepository.findByUuid(uuid)
-                                        .orElseThrow(() -> new GreetingNotFoundException(uuid)))));
+    @Transactional
+    public GreetingResponse update(UUID uuid, UpdateGreetingRequest request) {
+        GreetingResponse response = greetingMapper.toResponse(greetingRepository.save(greetingMapper.updateEntity(
+                        request,
+                        greetingRepository.findByUuid(uuid).orElseThrow(() -> new GreetingNotFoundException(uuid)))));
         log.info("Updated greeting: '{}'", uuid);
         return response;
     }
 
-    @Transactional public void delete(UUID uuid) {
+    @Transactional
+    public void delete(UUID uuid) {
         if (!greetingRepository.existsByUuid(uuid)) {
             throw new GreetingNotFoundException(uuid);
         }

@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.rest.filter;
 
 import jakarta.servlet.FilterChain;
@@ -22,12 +23,12 @@ public class RequestIdFilter extends OncePerRequestFilter {
 
     private static final String MDC_KEY = "requestId";
 
-    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile(
-                    "^[a-z\\d]{8}-[a-z\\d]{4}-[a-z\\d]{4}-[a-z\\d]{4}-[a-z\\d]{12}$");
+    private static final Pattern REQUEST_ID_PATTERN = Pattern
+                    .compile("^[a-z\\d]{8}-[a-z\\d]{4}-[a-z\\d]{4}-[a-z\\d]{4}-[a-z\\d]{12}$");
 
-    @Override protected void doFilterInternal(@NonNull HttpServletRequest request,
-                    @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-                    throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String requestId = resolve(request.getHeader(HEADER));
 
