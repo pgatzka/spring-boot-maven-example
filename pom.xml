@@ -136,8 +136,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <profiles>development</profiles>
-                    <profiles>actuator</profiles>
+                    <profiles>
+                        <profile>development</profile>
+                        <profile>actuator</profile>
+                    </profiles>
                 </configuration>
             </plugin>
             <plugin>
@@ -290,7 +292,7 @@
                         </eclipse>
                         <trimTrailingWhitespace/>
                         <endWithNewline/>
-                        <removeUnusedImports />
+                        <removeUnusedImports/>
                     </java>
                 </configuration>
             </plugin>
