@@ -2,3 +2,7 @@ logging:
   level:
     root: warn
     io.github.pgatzka.example: debug
+spring:
+  docker:
+    compose:
+      lifecycle-management: start_only
