@@ -1,0 +1,9 @@
+logging:
+  structured:
+    format:
+      console: ecs
+    ecs:
+      service:
+        name: ${spring.application.name}
+        version: ${APPLICATION_VERSION:unknown}
+        environment: ${ENVIRONMENT:unknown}

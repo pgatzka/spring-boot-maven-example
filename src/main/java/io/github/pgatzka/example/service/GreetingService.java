@@ -3,18 +3,17 @@ package io.github.pgatzka.example.service;
 
 import io.github.pgatzka.example.domain.mapper.GreetingMapper;
 import io.github.pgatzka.example.domain.repository.GreetingRepository;
-import io.github.pgatzka.example.rest.request.GreetingCreateRequest;
-import io.github.pgatzka.example.rest.response.response.GreetingResponse;
 import io.github.pgatzka.example.exception.GreetingNotFoundException;
+import io.github.pgatzka.example.rest.request.GreetingCreateRequest;
 import io.github.pgatzka.example.rest.request.UpdateGreetingRequest;
+import io.github.pgatzka.example.rest.response.response.GreetingResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,24 +29,23 @@ public class GreetingService {
     public GreetingResponse greet(GreetingCreateRequest request) {
         GreetingResponse response = greetingMapper
                         .toResponse(greetingRepository.save(greetingMapper.toEntity(request)));
-        if (response.message() == null) {
-            log.info("'{}' greeted '{}' without a message", response.author(), response.subject());
-        } else {
-            log.info("'{}' greeted '{}' with message '{}'", response.author(), response.subject(), response.message());
-        }
+
+        log.atInfo().setMessage("Greeting created").addKeyValue("greeting.author", response.author())
+                        .addKeyValue("greeting.subject", response.subject())
+                        .addKeyValue("greeting.has_message", response.message() != null).log();
         return response;
     }
 
     public GreetingResponse get(UUID uuid) {
         GreetingResponse response = greetingRepository.findByUuid(uuid).map(greetingMapper::toResponse)
                         .orElseThrow(() -> new GreetingNotFoundException(uuid));
-        log.info("Fetched greeting: {}", response);
+        log.atInfo().setMessage("Fetched greeting").addKeyValue("greeting", response).log();
         return response;
     }
 
     public PagedModel<GreetingResponse> list(Pageable pageable) {
-        log.info("Fetching greetings with pageSize: {}, pageNumber: {}", pageable.getPageSize(),
-                        pageable.getPageNumber());
+        log.atInfo().setMessage("Fetching greetings page").addKeyValue("page.page_size", pageable.getPageSize())
+                        .addKeyValue("page.page_number", pageable.getPageNumber()).log();
         return new PagedModel<>(greetingRepository.findAll(pageable).map(greetingMapper::toResponse));
     }
 

@@ -9,6 +9,19 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  profiles:
+    group:
+      production:
+        - actuator
+        - json-logging
+      staging:
+        - actuator
+        - json-logging
+      development:
+        - actuator
+  docker:
+    compose:
+      enabled: false
 logging:
   level:
     root: info
