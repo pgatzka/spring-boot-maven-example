@@ -13,10 +13,10 @@ spring:
     group:
       production:
         - actuator
-        - logging
+        - json-logging
       staging:
         - actuator
-        - logging
+        - json-logging
       development:
         - actuator
   docker:

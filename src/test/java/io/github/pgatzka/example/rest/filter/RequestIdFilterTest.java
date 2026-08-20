@@ -83,7 +83,7 @@ class RequestIdFilterTest {
 
             filter.doFilter(request, response, chain);
 
-            assertThatCode(observed::get).doesNotThrowAnyException();
+            assertThatCode(() -> UUID.fromString(observed.get())).doesNotThrowAnyException();
         }
 
     }
