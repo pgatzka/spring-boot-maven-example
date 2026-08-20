@@ -1,3 +1,4 @@
+
 package io.github.pgatzka.example.rest.filter;
 
 import jakarta.servlet.FilterChain;
@@ -31,9 +32,10 @@ class RequestIdFilterTest {
 
     private final AtomicReference<String> observed = new AtomicReference<>();
 
-    private final FilterChain chain = (req, res) -> observed.set(MDC.get(MDC_KEY));
+    private final FilterChain chain = (_, _) -> observed.set(MDC.get(MDC_KEY));
 
-    @AfterEach void clearMdc() {
+    @AfterEach
+    void clearMdc() {
         MDC.clear();
     }
 
@@ -41,7 +43,8 @@ class RequestIdFilterTest {
     @DisplayName("with a valid inbound header")
     class InboundHeader {
 
-        @Test void reusesTheCallerValue() throws Exception {
+        @Test
+        void reusesTheCallerValue() throws Exception {
             request.addHeader(HEADER, INBOUND_ID);
 
             filter.doFilter(request, response, chain);
@@ -56,14 +59,16 @@ class RequestIdFilterTest {
     @DisplayName("without a usable inbound header")
     class GeneratedId {
 
-        @Test void generatesAUuidWhenTheHeaderIsAbsent() throws Exception {
+        @Test
+        void generatesAUuidWhenTheHeaderIsAbsent() throws Exception {
             filter.doFilter(request, response, chain);
 
             assertThatCode(() -> UUID.fromString(observed.get())).doesNotThrowAnyException();
             assertThat(response.getHeader(HEADER)).isEqualTo(observed.get());
         }
 
-        @Test void generatesAUuidWhenTheHeaderContainsUnsafeCharacters() throws Exception {
+        @Test
+        void generatesAUuidWhenTheHeaderContainsUnsafeCharacters() throws Exception {
             request.addHeader(HEADER, "injected\nWARN forged log line");
 
             filter.doFilter(request, response, chain);
@@ -72,7 +77,8 @@ class RequestIdFilterTest {
             assertThatCode(() -> UUID.fromString(observed.get())).doesNotThrowAnyException();
         }
 
-        @Test void generatesAUuidWhenTheHeaderIsTooLong() throws Exception {
+        @Test
+        void generatesAUuidWhenTheHeaderIsTooLong() throws Exception {
             request.addHeader(HEADER, "a".repeat(65));
 
             filter.doFilter(request, response, chain);
@@ -86,13 +92,15 @@ class RequestIdFilterTest {
     @DisplayName("MDC lifecycle")
     class Lifecycle {
 
-        @Test void removesTheEntryAfterTheRequest() throws Exception {
+        @Test
+        void removesTheEntryAfterTheRequest() throws Exception {
             filter.doFilter(request, response, chain);
 
             assertThat(MDC.get(MDC_KEY)).isNull();
         }
 
-        @Test void removesTheEntryWhenTheChainThrows() {
+        @Test
+        void removesTheEntryWhenTheChainThrows() {
             FilterChain failing = (req, res) -> {
                 throw new IllegalStateException("downstream failure");
             };
